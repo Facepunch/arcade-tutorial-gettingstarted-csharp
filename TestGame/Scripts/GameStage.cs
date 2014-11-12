@@ -15,6 +15,8 @@ namespace Games.TestGame
 
         float _elapsedTime;
 
+        Sound _playerDieSound;
+
         // called when this stage is created
         public GameStage(Main game) : base(game)
         {
@@ -30,6 +32,8 @@ namespace Games.TestGame
             Graphics.SetClearColor(Game.Swatches.ClearColor); // set the background color
 
             StartCoroutine(SpawnBullets);
+
+            _playerDieSound = Audio.GetSound("Resources", "sounds", "player_die");
         }
 
         // called each tick
@@ -47,7 +51,10 @@ namespace Games.TestGame
                 float distSqr = (bullet.Position - _player.Position).LengthSquared;
                 if(distSqr < 140.0f)
                 {
-                    // player's dead, restart game
+                    // play death sound
+                    Audio.Play(_playerDieSound, 0.0f, 1.0f, 1.0f);
+
+                    // restart game
                     Game.SetStage(new TitleStage(Game));
                 }
             }

@@ -11,6 +11,8 @@ namespace Games.TestGame
 
         protected Sprite _sprite;
         Animation _walkAnim;
+        Sound _walkSound;
+        int _currentAnimFrame;
 
         float _moveSpeed;
         Axis2 _moveAxis;
@@ -37,6 +39,11 @@ namespace Games.TestGame
 
             Image image = _walkAnim.GetFrame(0);
             _sprite = Add(new Sprite(_walkAnim, Game.Swatches.Player), new Vector2i(-image.Width / 2, -image.Height / 2));
+        }
+
+        protected override void OnLoadAudio(Audio audio)
+        {
+            _walkSound = audio.GetSound("Resources", "sounds", "player_walk");
         }
 
         protected override void OnUpdate(double dt)
@@ -73,6 +80,15 @@ namespace Games.TestGame
 
             // keep player within screen boundary
             CheckBounds();
+
+            // play a sound when our animation frame changes while walking
+            if(!_moveAxis.IsZero)
+            {
+                if(_walkAnim.Frame == 0 && _currentAnimFrame == 1)
+                    Stage.Audio.Play(_walkSound, 0.0f, 1.0f, 1.0f);
+
+                _currentAnimFrame = _walkAnim.Frame;
+            }
         }
 
         void CheckBounds()
