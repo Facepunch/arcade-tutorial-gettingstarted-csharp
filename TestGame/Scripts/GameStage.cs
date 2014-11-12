@@ -8,21 +8,25 @@ namespace Games.TestGame
 {
     public class GameStage : Stage
     {
+        Player _player;
+        List<Bullet> _bullets = new List<Bullet>();
+
         public new Main Game { get { return (Main) base.Game; } }
 
         // called when this stage is created
         public GameStage(Main game) : base(game)
         {
             // create a new Player object and add it to this stage at depth 0
-            Player player = Add(new Player(), 0);
+            _player = Add(new Player(), 0);
 
-            player.Position = new Vector2f(40f, 40f);
+            _player.Position = new Vector2f(40f, 40f);
         }
 
         // called when this stage is entered
         protected override void OnEnter()
         {
-            Graphics.SetClearColor(Game.Swatches.ClearColor);
+            Graphics.SetClearColor(Game.Swatches.ClearColor); // set the background color
+
             StartCoroutine(SpawnBullets);
         }
 
@@ -31,6 +35,17 @@ namespace Games.TestGame
         {
             base.OnUpdate();
 
+            // check collision between player and bullets
+            foreach(Bullet bullet in _bullets)
+            {
+                // check distance from each bullet to the player
+                float distSqr = (bullet.Position - _player.Position).LengthSquared;
+                if(distSqr < 150.0f)
+                {
+                    // player's dead, restart game
+                    Game.SetStage(new TitleStage(Game));
+                }
+            }
         }
 
         // called when this stage is rendered
@@ -52,14 +67,30 @@ namespace Games.TestGame
 
                 // create a bullet moving downward
                 Vector2f bulletPos = new Vector2f(Mathf.Random(PADDING, Graphics.Width - PADDING), Graphics.Height + PADDING);
-                Bullet bullet = Add(new Bullet(true), 1);
-                bullet.Position = bulletPos;
+                AddBullet(bulletPos, true);
 
                 // create a bullet moving upward
                 bulletPos = new Vector2f(Mathf.Random(PADDING, Graphics.Width - PADDING), -PADDING);
-                bullet = Add(new Bullet(false), 1);
-                bullet.Position = bulletPos;
+                AddBullet(bulletPos, false);
             }
+        }
+
+        void AddBullet(Vector2f pos, bool movingDownward)
+        {
+            Bullet bullet = Add(new Bullet(movingDownward), 1);
+            bullet.Position = pos;
+
+            // save the bullet to our list so we can keep track of it
+            _bullets.Add(bullet);
+        }
+
+        public void RemoveBullet(Bullet bullet)
+        {
+            // remove the bullet from our list (we no longer want to keep track of it)
+            _bullets.Remove(bullet);
+
+            // remove the bullet from the stage (this destroys it)
+            Remove(bullet);
         }
     }
 }

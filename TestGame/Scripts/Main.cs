@@ -23,7 +23,7 @@ namespace Games.TestGame
 
         protected override void OnReset()
         {
-            SetStage(new GameStage(this));
+            SetStage(new TitleStage(this));
         }
     }
 }

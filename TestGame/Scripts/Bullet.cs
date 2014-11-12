@@ -59,9 +59,9 @@ namespace Games.TestGame
 
             // tell our containing scene to get rid of us when we are fully out of bounds
             if(_isMovingDownward && Y < -mySize.Y * 0.5f)
-                Stage.Remove(this);
+                ((GameStage)Stage).RemoveBullet(this); // need to cast our Stage to the GameStage subclass to use GameStage-specific methods
             else if(!_isMovingDownward && Y > gameSize.Y + mySize.Y * 0.5f)
-                Stage.Remove(this);
+                ((GameStage)Stage).RemoveBullet(this);
         }
     }
 }
