@@ -8,10 +8,12 @@ namespace Games.TestGame
 {
     public class GameStage : Stage
     {
+        public new Main Game { get { return (Main) base.Game; } }
+
         Player _player;
         List<Bullet> _bullets = new List<Bullet>();
 
-        public new Main Game { get { return (Main) base.Game; } }
+        float _elapsedTime;
 
         // called when this stage is created
         public GameStage(Main game) : base(game)
@@ -35,12 +37,15 @@ namespace Games.TestGame
         {
             base.OnUpdate();
 
+            // keep track of how much time has elapsed this round
+            _elapsedTime += (float)Timestep;
+
             // check collision between player and bullets
             foreach(Bullet bullet in _bullets)
             {
                 // check distance from each bullet to the player
                 float distSqr = (bullet.Position - _player.Position).LengthSquared;
-                if(distSqr < 150.0f)
+                if(distSqr < 140.0f)
                 {
                     // player's dead, restart game
                     Game.SetStage(new TitleStage(Game));
@@ -60,7 +65,8 @@ namespace Games.TestGame
             while(true)
             {
                 // wait
-                yield return Delay(0.5f);
+                float delay = Mathf.Max(0.5f - _elapsedTime * 0.01f, 0.05f);
+                yield return Delay(delay);
 
                 // spawn bullet
                 float PADDING = 10.0f;
@@ -77,7 +83,7 @@ namespace Games.TestGame
 
         void AddBullet(Vector2f pos, bool movingDownward)
         {
-            Bullet bullet = Add(new Bullet(movingDownward), 1);
+            Bullet bullet = Add(new Bullet(movingDownward, _elapsedTime), 1);
             bullet.Position = pos;
 
             // save the bullet to our list so we can keep track of it
