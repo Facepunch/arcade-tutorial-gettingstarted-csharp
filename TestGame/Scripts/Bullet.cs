@@ -13,10 +13,13 @@ namespace Games.TestGame
 
         float _moveSpeed;
 
+        bool _isMovingDownward;
+
         // constructor
-        public Bullet()
+        public Bullet(bool movingDownward)
         {
             _moveSpeed = Mathf.Random(30.0f, 40.0f);
+            _isMovingDownward = movingDownward;
         }
 
         // called when this entity is added to a stage
@@ -30,6 +33,9 @@ namespace Games.TestGame
         {
             Image image = graphics.GetImage("Resources", "bullet");
             _sprite = Add(new Sprite(image, Game.Swatches.Bullet), new Vector2i(-image.Width / 2, -image.Height / 2));
+
+            if(!_isMovingDownward)
+                _sprite.FlipY = true;
         }
 
         protected override void OnUpdate(double dt)
@@ -37,7 +43,10 @@ namespace Games.TestGame
             base.OnUpdate(dt);
 
             // change position
-            Y -= _moveSpeed * (float)dt;
+            if(_isMovingDownward)
+                Y -= _moveSpeed * (float)dt;
+            else
+                Y += _moveSpeed * (float)dt;
 
             // keep player within screen boundary
             CheckBounds();
@@ -48,11 +57,11 @@ namespace Games.TestGame
             Vector2f gameSize = (Vector2f)Stage.Game.Graphics.Size;
             Vector2f mySize = (Vector2f)_sprite.Size;
 
-            if(Y < -mySize.Y * 0.5f)
-            {
-                Debug.Log("bullet removed: " + Position);
-                Stage.Remove(this); // tell our containing scene to get rid of us when we are fully out of bounds
-            }
+            // tell our containing scene to get rid of us when we are fully out of bounds
+            if(_isMovingDownward && Y < -mySize.Y * 0.5f)
+                Stage.Remove(this);
+            else if(!_isMovingDownward && Y > gameSize.Y + mySize.Y * 0.5f)
+                Stage.Remove(this);
         }
     }
 }

@@ -49,8 +49,15 @@ namespace Games.TestGame
 
                 // spawn bullet
                 float PADDING = 10.0f;
+
+                // create a bullet moving downward
                 Vector2f bulletPos = new Vector2f(Mathf.Random(PADDING, Graphics.Width - PADDING), Graphics.Height + PADDING);
-                Bullet bullet = Add(new Bullet(), 1);
+                Bullet bullet = Add(new Bullet(true), 1);
+                bullet.Position = bulletPos;
+
+                // create a bullet moving upward
+                bulletPos = new Vector2f(Mathf.Random(PADDING, Graphics.Width - PADDING), -PADDING);
+                bullet = Add(new Bullet(false), 1);
                 bullet.Position = bulletPos;
             }
         }
